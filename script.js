@@ -2,6 +2,7 @@ const items = document.getElementsByClassName('items');
 const cartItems = document.getElementsByClassName('cart__items');
 const totalPrice = document.querySelector('.total-price');
 const buttonEmptyCart = document.querySelector('.empty-cart');
+const sectionContainer = document.querySelector('.container');
 
 totalPrice.innerText = 'Carrinho Vazio';
 
@@ -53,8 +54,21 @@ const createCartItemElement = ({ sku, name, salePrice }) => {
   return li;
 };
 
+const showLoadingAlert = () => {
+  const loadingAlert = document.createElement('h3');
+  loadingAlert.innerText = '[Carregando...]';
+  loadingAlert.className = 'loading';
+  sectionContainer.insertBefore(loadingAlert, sectionContainer.childNodes[0]);  
+};
+
+const hideLoadingAlert = () => {
+  sectionContainer.removeChild(sectionContainer.childNodes[0]);
+};
+
 const addItemToCart = async (section) => {
+  showLoadingAlert();
   objItem = await fetchItem(getSkuFromProductItem(section));
+  hideLoadingAlert();
   const newSessionProduct = createCartItemElement({
     sku: objItem.id, name: objItem.title, salePrice: objItem.price });    
   cartItems[0].appendChild(newSessionProduct);
@@ -83,7 +97,9 @@ const createProductItemElement = ({ sku, name, image }) => {
 };
 
 const loadProducts = async () => {
+  showLoadingAlert();
   arrayProducts = await fetchProducts('computador');
+  hideLoadingAlert();
   arrayProducts.results.forEach((product) => {
     const newSessionProduct = createProductItemElement({
       sku: product.id, name: product.title, image: product.thumbnail });    
