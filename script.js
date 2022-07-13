@@ -34,6 +34,12 @@ const addItemToCart = async (section) => {
   const newSessionProduct = createCartItemElement({
     sku: objItem.id, name: objItem.title, salePrice: objItem.price });    
   cartItems[0].appendChild(newSessionProduct);
+  saveCartItems(cartItems[0].outerHTML);
+};
+
+const loadLocalStoredSavedItemToCart = (savedItems) => {
+  cartItems[0].outerHTML = savedItems;
+  cartItems[0].childNodes.forEach((li) => li.addEventListener('click', cartItemClickListener));  
 };
 
 const createProductItemElement = ({ sku, name, image }) => {
@@ -59,8 +65,11 @@ const loadProducts = async () => {
   });    
 };
 
-
-
 window.onload = () => {
-  loadProducts();
+  loadProducts(); 
+  if (localStorage.getItem('cartItems') !== null) {
+    const savedCart = getSavedCartItems(); 
+    console.log(savedCart);   
+    loadLocalStoredSavedItemToCart(savedCart);
+  }
 };
