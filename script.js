@@ -1,5 +1,8 @@
 const items = document.getElementsByClassName('items');
 const cartItems = document.getElementsByClassName('cart__items');
+const totalPrice = document.querySelector('.total-price');
+
+totalPrice.innerText = 'Carrinho Vazio';
 
 const createProductImageElement = (imageSource) => {
   const img = document.createElement('img');
@@ -17,8 +20,27 @@ const createCustomElement = (element, className, innerText) => {
 
 const getSkuFromProductItem = (item) => item.querySelector('span.item__sku').innerText;
 
+const getArrayValuesFromItemsCart = () => {
+  const itemsCartValues = [];
+  cartItems[0].childNodes.forEach((li) => {
+    const array = li.innerText.split(' | ');
+    array.forEach((detail) => {
+      const [key, value] = detail.split(': ');
+      if (key === 'PRICE') itemsCartValues.push(value.replace('$', ''));
+    });  
+  });  
+  return itemsCartValues;   
+};
+
+const calcCartTotalValue = () => {
+  const cartProductsValues = getArrayValuesFromItemsCart();
+  const totalCartVAlue = cartProductsValues.reduce((acc, curr) => acc + parseFloat(curr), 0.0);
+  totalPrice.innerText = Math.round(totalCartVAlue * 100) / 100; // rounds off values and sets to two decimal places. To increase decimal places add more 0.
+};
+
 const cartItemClickListener = (event) => {
   cartItems[0].removeChild(event.target);
+  calcCartTotalValue();
 };
 
 const createCartItemElement = ({ sku, name, salePrice }) => {
@@ -35,11 +57,13 @@ const addItemToCart = async (section) => {
     sku: objItem.id, name: objItem.title, salePrice: objItem.price });    
   cartItems[0].appendChild(newSessionProduct);
   saveCartItems(cartItems[0].outerHTML);
+  calcCartTotalValue();
 };
 
 const loadLocalStoredSavedItemToCart = (savedItems) => {
   cartItems[0].outerHTML = savedItems;
   cartItems[0].childNodes.forEach((li) => li.addEventListener('click', cartItemClickListener));  
+  calcCartTotalValue();
 };
 
 const createProductItemElement = ({ sku, name, image }) => {
