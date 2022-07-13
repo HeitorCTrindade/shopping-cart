@@ -15,19 +15,6 @@ const createCustomElement = (element, className, innerText) => {
   return e;
 };
 
-const createProductItemElement = ({ sku, name, image }) => {
-  const section = document.createElement('section');
-  section.className = 'item';
-  
-  section.appendChild(createCustomElement('span', 'item__sku', sku));
-  section.appendChild(createCustomElement('span', 'item__title', name));
-  section.appendChild(createProductImageElement(image));
-  const button = createCustomElement('button', 'item__add', 'Adicionar ao carrinho!');
-  button.addEventListener('click', () => addItemToCart(section));
-  section.appendChild(button);
-  return section;
-};
-
 const getSkuFromProductItem = (item) => item.querySelector('span.item__sku').innerText;
 
 const cartItemClickListener = (event) => {
@@ -49,11 +36,31 @@ const addItemToCart = async (section) => {
   cartItems[0].appendChild(newSessionProduct);
 };
 
-window.onload = async () => {
+const createProductItemElement = ({ sku, name, image }) => {
+  const section = document.createElement('section');
+  section.className = 'item';  
+  section.appendChild(createCustomElement('span', 'item__sku', sku));
+  section.appendChild(createCustomElement('span', 'item__title', name));
+  section.appendChild(createProductImageElement(image));
+
+  const button = createCustomElement('button', 'item__add', 'Adicionar ao carrinho!');
+  button.addEventListener('click', () => addItemToCart(section));
+
+  section.appendChild(button);
+  return section;
+};
+
+const loadProducts = async () => {
   arrayProducts = await fetchProducts('computador');
   arrayProducts.results.forEach((product) => {
     const newSessionProduct = createProductItemElement({
       sku: product.id, name: product.title, image: product.thumbnail });    
     items[0].appendChild(newSessionProduct);    
   });    
+};
+
+
+
+window.onload = () => {
+  loadProducts();
 };
