@@ -1,6 +1,7 @@
 const items = document.getElementsByClassName('items');
 const cartItems = document.getElementsByClassName('cart__items');
 const totalPrice = document.querySelector('.total-price');
+const buttonEmptyCart = document.querySelector('.empty-cart');
 
 totalPrice.innerText = 'Carrinho Vazio';
 
@@ -40,7 +41,8 @@ const calcCartTotalValue = () => {
 
 const cartItemClickListener = (event) => {
   cartItems[0].removeChild(event.target);
-  calcCartTotalValue();
+  saveCartItems(cartItems[0].outerHTML);
+  calcCartTotalValue(); 
 };
 
 const createCartItemElement = ({ sku, name, salePrice }) => {
@@ -89,11 +91,20 @@ const loadProducts = async () => {
   });    
 };
 
+const handleButtonEmptyCart = () => {
+  buttonEmptyCart.addEventListener('click', () => {
+    cartItems[0].innerHTML = '';
+    calcCartTotalValue();
+    saveCartItems(cartItems[0].outerHTML);
+  });  
+};
+
 window.onload = () => {
   loadProducts(); 
+  handleButtonEmptyCart();
   if (localStorage.getItem('cartItems') !== null) {
     const savedCart = getSavedCartItems(); 
     console.log(savedCart);   
     loadLocalStoredSavedItemToCart(savedCart);
-  }
+  }  
 };
