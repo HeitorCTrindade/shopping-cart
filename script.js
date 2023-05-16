@@ -7,9 +7,10 @@ const sectionContainer = document.querySelector('.container');
 totalPrice.innerText = 'Carrinho Vazio';
 
 const createProductImageElement = (imageSource) => {
+  const imageSourceHD = imageSource.replace('I', 'W');
   const img = document.createElement('img');
   img.className = 'item__image';
-  img.src = imageSource;
+  img.src = imageSourceHD;
   return img;
 };
 
@@ -37,7 +38,7 @@ const getArrayValuesFromItemsCart = () => {
 const calcCartTotalValue = () => {
   const cartProductsValues = getArrayValuesFromItemsCart();
   const totalCartVAlue = cartProductsValues.reduce((acc, curr) => acc + parseFloat(curr), 0.0);
-  totalPrice.innerText = Math.round(totalCartVAlue * 100) / 100; // rounds off values and sets to two decimal places. To increase decimal places add more 0.
+  totalPrice.innerText = totalCartVAlue.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); // rounds off values and sets to two decimal places. To increase decimal places add more 0.
 };
 
 const cartItemClickListener = (event) => {
@@ -82,12 +83,14 @@ const loadLocalStoredSavedItemToCart = (savedItems) => {
   calcCartTotalValue();
 };
 
-const createProductItemElement = ({ sku, name, image }) => {
+const createProductItemElement = ({ sku, name, image, price }) => {
+  const formatedPrice = price.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); // https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString
   const section = document.createElement('section');
   section.className = 'item';  
   section.appendChild(createCustomElement('span', 'item__sku', sku));
   section.appendChild(createCustomElement('span', 'item__title', name));
   section.appendChild(createProductImageElement(image));
+  section.appendChild(createCustomElement('span', 'price', formatedPrice));
 
   const button = createCustomElement('button', 'item__add', 'Adicionar ao carrinho!');
   button.addEventListener('click', () => addItemToCart(section));
@@ -102,7 +105,7 @@ const loadProducts = async () => {
   hideLoadingAlert();
   arrayProducts.results.forEach((product) => {
     const newSessionProduct = createProductItemElement({
-      sku: product.id, name: product.title, image: product.thumbnail });    
+      sku: product.id, name: product.title, image: product.thumbnail, price: product.price });    
     items[0].appendChild(newSessionProduct);    
   });    
 };
@@ -119,8 +122,7 @@ window.onload = () => {
   loadProducts(); 
   handleButtonEmptyCart();
   if (localStorage.getItem('cartItems') !== null) {
-    const savedCart = getSavedCartItems(); 
-    console.log(savedCart);   
+    const savedCart = getSavedCartItems();     
     loadLocalStoredSavedItemToCart(savedCart);
   }  
 };
